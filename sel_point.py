@@ -13,20 +13,23 @@
 #   C:\dir\sel_points>python sel_point.py -m 141 -i ../data/Puntos_Point.csv -p 20
 #
 
+# Print helpful messages, set to False in Production
+debug = False
+plot  = False
+
 import random
 import math
 
 import sys, getopt, os
+from datetime import datetime
 
 import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
+if plot:
+	import seaborn as sns
+	sns.set()
 
 import pandas as pd
 
-# Print helpful messages, set to False in Production
-debug = False
-plot  = False
 
 def regulariza(t):
     nc  = t.replace('(','')
@@ -185,8 +188,11 @@ def select_first_point(universe_points, selected_points,  X, Y):
 
 def exec_select_points(universe_points, selected_points, min_necesary_points, min_distance_allowed):
     k = 0
-    max_iter = 1000
-    while ( len(selected_points) < min_necesary_points and k < max_iter ):
+    max_iter = 10000
+    while ( len(selected_points) < min_necesary_points ):
+        if k >= max_iter:
+            print('*** max. iterations [',max_iter,'] reached, without necesary of necesary points.')
+            break
         p = get_point(universe_points)
         if debug: print('checking if new point:',p, 'is useful ...')
         res = False
@@ -200,8 +206,7 @@ def exec_select_points(universe_points, selected_points, min_necesary_points, mi
         if debug: print('number of selected points',len(selected_points))
         #print('points selected', selected_points)
 
-
-    print('\n*** end of selection.\t',k, 'iterations')
+    print('*** end of selection. ', k, 'iterations')
     print('*** number of selected points:',len(selected_points))
     return selected_points
     
@@ -285,11 +290,13 @@ def main(argv):
                 print ('Error: min_distance must be positive in meters')
                 print ('sel_point.py -m <min_distance_in_meters> -i <filename_csv> -p <percent_points>')
                 sys.exit()
-                
+    
+    now = datetime.now()	
+    print (sys.argv[0], now)
     print ('CSV Filename         :', filename )
     print ('Percent of points [%]:', prop )
-    print ('Min. Distance [m]    :', min_distance_allowed )
-    
+    print ('Min. Distance     [m]:', min_distance_allowed )
+	
     universe_points = []
     selected_points = []
     
@@ -297,9 +304,8 @@ def main(argv):
     X, Y, total_points, universe_points = read_csv(filename)
     
     min_necesary_points = int((total_points)*prop/100)
-    print('\n')
-    print('Total Points in csv       :',total_points)
-    print('Number of points to select:', min_necesary_points)
+    print('Total Points in the csv file:',total_points)
+    print('Number of points to select  :', min_necesary_points)
    
     selected_points = select_first_point(universe_points, selected_points,  X, Y)
     selected_points = exec_select_points(universe_points, selected_points, min_necesary_points, min_distance_allowed)
