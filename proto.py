@@ -3,7 +3,7 @@
 
 # # Determinacion de puntos para toma de muestras
 
-# In[1431]:
+# In[1]:
 
 
 # python 3.7
@@ -15,14 +15,14 @@
 #
 
 
-# In[1432]:
+# In[2]:
 
 
 import random
 import math
 
 
-# In[1433]:
+# In[3]:
 
 
 import matplotlib.pyplot as plt
@@ -30,13 +30,13 @@ import seaborn as sns
 sns.set()
 
 
-# In[1434]:
+# In[4]:
 
 
 import pandas as pd
 
 
-# In[1435]:
+# In[34]:
 
 
 # Print helpful messages
@@ -44,23 +44,28 @@ import pandas as pd
 debug = False
 
 
-# In[1436]:
+# In[6]:
 
 
 # Lee el csv
-filename = '/Users/Julio/Dropbox7current/ATY/data/Puntos_Point.csv'
 filename = '../data/Puntos_Point.csv'
 
 name = 'A3-c'
 #name = 'A4-b'
 
+# Filtra solo las filas con Name = ...
 df = pd.read_csv(filename)
+
+
+# In[7]:
+
+
 df = df[(df['Name'] == name )]
 
 total_points =  len(df)
 
 # Prop. of total point number
-prop = 0.3
+prop = 0.10
 # Minimal Distance Allowed
 min_distance_allowed = 141
 print('Total Points in csv:',total_points)
@@ -68,13 +73,13 @@ print('% of Points to use:',prop*100, '| Number of points to use:',int(prop*len(
 print('Min. distance allowed:',min_distance_allowed)
 
 
-# In[1437]:
+# In[8]:
 
 
 df.head(3)
 
 
-# In[1438]:
+# In[9]:
 
 
 # Transform wkt_geom to X, Y coord.
@@ -90,7 +95,7 @@ df['Y']=df['Y'].apply(regulariza)
 df.head(3)
 
 
-# In[1439]:
+# In[10]:
 
 
 # To numeric
@@ -98,7 +103,7 @@ df['X'] = pd.to_numeric(df['X'], errors='raise', downcast='float')
 df['Y'] = pd.to_numeric(df['Y'], errors='raise', downcast='float')
 
 
-# In[1440]:
+# In[11]:
 
 
 X = df['X'].values
@@ -119,13 +124,14 @@ print('Max. coord.:',df['X'].max(), df['Y'].max(),' | Integer:',xmax,ymax)
 
 # ### Puntos recibidos
 
-# In[1441]:
+# In[12]:
 
 
+plt.title('Grid Points (loaded)')
 plt.scatter(X,Y, marker='.', s = 5);
 
 
-# In[1442]:
+# In[13]:
 
 
 # universe_points se obtiene del archivo csv
@@ -136,20 +142,20 @@ for i in range(0,len(X)):
     universe_points.append([x,y])
 
 
-# In[1443]:
+# In[14]:
 
 
-universe_points[0:4]
+universe_points[0:5]
 
 
-# In[1444]:
+# In[15]:
 
 
-min_necesary_points = int(prop*len(universe_points))
+min_necesary_points = int(prop*len(universe_points))+1
 print('Min. number of Points needed:',min_necesary_points)
 
 
-# In[1445]:
+# In[16]:
 
 
 #universe_points
@@ -160,7 +166,7 @@ print('Min. number of Points needed:',min_necesary_points)
 #  universe_points.append( [random.randint(1,100),random.randint(1,100)] ) 
 
 
-# In[1446]:
+# In[17]:
 
 
 def distance(p,q):
@@ -170,13 +176,7 @@ def distance(p,q):
     return math.sqrt( (p[0]-q[0])*(p[0]-q[0]) + (p[1]-q[1])*(p[1]-q[1]) )  
 
 
-# In[ ]:
-
-
-
-
-
-# In[1447]:
+# In[18]:
 
 
 def get_point():
@@ -187,7 +187,7 @@ def get_point():
     return universe_points[i]
 
 
-# In[1448]:
+# In[19]:
 
 
 def get_first_point():
@@ -195,20 +195,27 @@ def get_first_point():
     Get the first point from the points array
     The nearest point to the centroid of all points
     '''
-    xmin = 9999999999999999
-    xmax = -999999999999999
-    ymin = 9999999999999999
-    ymax = -999999999999999
+    totx = 0
+    toty = 0
+    #xmin = 9999999999999999
+    #xmax = -999999999999999
+    #ymin = 9999999999999999
+    #ymax = -999999999999999
     first_point = []
-    for i in range(0,len(universe_points)):
+    n = len(universe_points)
+    for i in range(0,n):
         x = universe_points[i][0]
         y = universe_points[i][1]
-        if x < xmin: xmin = x
-        if x > xmax: xmax = x
-        if y < ymin: ymin = y
-        if y > ymax: ymax = y
-            
-    centroid = [ xmin + (xmax-xmin)/2 ,ymin + (ymax-ymin)/2 ]
+        #if x < xmin: xmin = x
+        #if x > xmax: xmax = x
+        #if y < ymin: ymin = y
+        #if y > ymax: ymax = y
+        totx = totx + x
+        toty = toty + y
+                
+    #centroid = [ xmin + (xmax-xmin)/2 ,ymin + (ymax-ymin)/2 ]
+    centroid = [ totx/n, toty/n ]
+
     if debug: print('*** Centroid:',centroid)
     
     d = 9999999999999999
@@ -220,7 +227,7 @@ def get_first_point():
     return first_point
 
 
-# In[1449]:
+# In[20]:
 
 
 def verify(point, selected_points):
@@ -248,7 +255,7 @@ def verify(point, selected_points):
 
 # # Ejecucion de la seleccion de puntos
 
-# In[1450]:
+# In[21]:
 
 
 selected_points=[]
@@ -260,7 +267,17 @@ selected_points.append( p )
 if debug: print('first point',selected_points)
 
 
-# In[1451]:
+# In[22]:
+
+
+plt.title('Centroid')
+plt.scatter(X,Y, c='b', marker='.', label='grid', s=10)
+plt.scatter(selected_points[0][0], selected_points[0][1], c='r', marker='X', label='centroid', s=40)
+plt.legend(loc='lower center')
+plt.show()
+
+
+# In[23]:
 
 
 k = 0
@@ -284,7 +301,7 @@ print('\n*** end of selection.\t',k, 'iterations')
 print('*** number of selected points:',len(selected_points))
 
 
-# In[1452]:
+# In[24]:
 
 
 display = False
@@ -293,7 +310,7 @@ if display:
     selected_points
 
 
-# In[1453]:
+# In[25]:
 
 
 XX=[]
@@ -305,15 +322,17 @@ for p in selected_points:
 
 # ### Grafico con puntos seleccionados
 
-# In[1454]:
+# In[26]:
 
 
+plt.title('Selected Points')
 plt.scatter(XX,YY, c='r', marker='+' );
 
 
-# In[ ]:
+# In[27]:
 
 
+plt.title('Selected Points in Grid')
 plt.scatter(X,Y, c='b', marker='.', label='grid', s=10)
 plt.scatter(XX, YY, c='r', marker='s', label='selected', s=10)
 plt.legend(loc='lower left')
@@ -322,7 +341,7 @@ plt.show()
 
 # ### Graba el csv con los puntos generados
 
-# In[1456]:
+# In[28]:
 
 
 index = []
@@ -336,11 +355,46 @@ data = {
 dfsel = pd.DataFrame(data=data, columns=['x','y'], index=index)
 
 
-# In[1457]:
+# In[29]:
 
 
 filename_selected = '../data/sel_'+name+'.csv'
 dfsel.to_csv(filename_selected)
+
+
+# ---
+
+# # Georeferenciado
+
+# In[30]:
+
+
+print('Centroid:',[selected_points[0][0], selected_points[0][1]] )
+
+
+# In[42]:
+
+
+#p = [11700934.77801547385752201, 1484840.35880533838644624 ]
+p = [ -1484640.359, -11699805.92]
+#p = [117009.34, 14848.40]
+#p = [selected_points[0][0], selected_points[0][1]]
+
+import folium
+m = folium.Map(
+    location= p,
+    zoom_start=5,
+    tiles='Stamen Terrain'
+)
+
+tooltip = 'Click'
+folium.Marker(p, popup='<i>'+'punto_seleccionado'+'</i>', tooltip=tooltip).add_to(m)
+
+    
+#for i in range(0,3): #len(selected_points)):
+#    folium.Marker([selected_points[i][0], selected_points[i][1]], popup='<i>'+'punto_seleccionado'+'</i>', tooltip=tooltip).add_to(m)
+
+m
 
 
 # In[ ]:
