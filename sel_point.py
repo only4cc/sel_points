@@ -168,14 +168,17 @@ def verify(point, selected_points, min_distance_allowed):
 
 
 # Ejecucion de la seleccion de puntos
-def select_first_point(universe_points, selected_points,  X, Y):
+def select_first_point(universe_points, selected_points):
     '''
     First point added to selected_points
     '''
     p = get_first_point(universe_points)
     selected_points.append( p )
-    
     if debug: print('first point',selected_points)
+    return selected_points
+    
+	
+def draw_first_point(universe_points, selected_points,  X, Y):
     if plot:
         plt.title('Centroid')
         plt.scatter(X,Y, c='b', marker='.', label='grid', s=10)
@@ -183,7 +186,6 @@ def select_first_point(universe_points, selected_points,  X, Y):
         plt.legend(loc='lower center')
         plt.show()
         
-    return selected_points
 
 
 def exec_select_points(universe_points, selected_points, min_necesary_points, min_distance_allowed):
@@ -307,7 +309,9 @@ def main(argv):
     print('Total Points in the csv file:',total_points)
     print('Number of points to select  :', min_necesary_points)
    
-    selected_points = select_first_point(universe_points, selected_points,  X, Y)
+    selected_points = select_first_point(universe_points, selected_points)
+    if plot: draw_first_point(universe_points, selected_points,  X, Y)
+	
     selected_points = exec_select_points(universe_points, selected_points, min_necesary_points, min_distance_allowed)
     
     if debug: print('selected points:', selected_points)
